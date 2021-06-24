@@ -1,10 +1,12 @@
 import datetime
-import random
+import secrets
 import sys
 
 from PyQt6.QtWidgets import QApplication, QWidget, QHBoxLayout, QVBoxLayout, QSpinBox, QLabel, QButtonGroup, \
     QRadioButton, QPushButton, QDialog
 from PyQt6.QtCore import Qt
+
+system_random = secrets.SystemRandom()
 
 
 class WindowWidget(QWidget):
@@ -51,15 +53,9 @@ class WindowWidget(QWidget):
         self.setWindowTitle("Lottery Number Generator")
 
     def showModal(self):
-        self.dialog.setWindowTitle("Ticket Numbers")
+        self.dialog.setWindowTitle(f"{self.button_group.checkedButton().text()} - Ticket Number ({self.sp.value()})")
         self.dialog.setWindowModality(Qt.WindowModality.ApplicationModal)
         self.dialog.resize(300, 300)
-        # d1 = QLabel("R")
-        # d2 = QLabel("D")
-
-        # dialog_layout = QVBoxLayout(self)
-        # dialog_layout.addWidget(d1)
-        # dialog_layout.addWidget(d2)
 
         self.dialog.setLayout(self.dialog_layout)
         self.dialog.exec()
@@ -72,7 +68,7 @@ class WindowWidget(QWidget):
         date_n_time = datetime.datetime.strftime(curr_date_time, "%B %d, %Y | %I:%M %p")
 
         with open("previous_generated.txt", "a") as file:
-            file.write(date_n_time + " || " + prompt_user_ticket_type + "\n")
+            file.write("\n" + date_n_time + " || " + prompt_user_ticket_type + "\n")
 
         for _ in range(prompt_user_num_ticket):
             self.makenum(prompt_user_ticket_type)
@@ -96,20 +92,20 @@ class WindowWidget(QWidget):
         power_num = 69
 
         if tickettype == "Cash 4 Life":
-            rand_powerball = random.randint(1, cash_pwrball)
+            rand_powerball = system_random.randint(1, cash_pwrball)
             num_end = cash_num
         elif tickettype == "Mega Millions":
-            rand_powerball = random.randint(1, mm_pwrball)
+            rand_powerball = system_random.randint(1, mm_pwrball)
             num_end = mm_num
         elif tickettype == "Powerball":
-            rand_powerball = random.randint(1, power_pwrball)
+            rand_powerball = system_random.randint(1, power_pwrball)
             num_end = power_num
 
         for _ in range(5):
-            rand_num = random.randint(1, num_end)
+            rand_num = system_random.randint(1, num_end)
 
             while rand_num in list_num:
-                rand_num = random.randint(1, num_end)
+                rand_num = system_random.randint(1, num_end)
 
             list_num.append(rand_num)
 
@@ -120,6 +116,10 @@ class WindowWidget(QWidget):
             str_list_num = ""
 
             for a in range(len(list_num)):
+
+                if list_num[a] < 10:
+                    list_num[a] = "0" + str(list_num[a])
+
                 str_list_num += str(list_num[a])
                 str_list_num += " "
             file.write(str_list_num + "\n")
