@@ -26,7 +26,8 @@ class WindowWidget(QWidget):
         layout.addWidget(self.lotteryNum_label)
         layout.addWidget(self.sp)
 
-        radiob = [QRadioButton("Cash 4 Life"), QRadioButton("Mega Millions"), QRadioButton("Powerball")]
+        radiob = [QRadioButton("Cash 4 Life"), QRadioButton("Mega Millions"),
+                  QRadioButton("Powerball"), QRadioButton("Numbers Eve (3)")]
         radiob[0].setChecked(True)
 
         self.button_group = QButtonGroup()
@@ -81,7 +82,11 @@ class WindowWidget(QWidget):
     def makenum(self, tickettype):
         list_num = []
 
+        num_of_positions = 5
+
+        num_start = 1
         num_end = 0
+
         rand_powerball = 0
 
         cash_pwrball = 4
@@ -90,6 +95,10 @@ class WindowWidget(QWidget):
         mm_num = 70
         power_pwrball = 26
         power_num = 69
+
+        daily_game_num = 9
+
+        has_powerball = True
 
         if tickettype == "Cash 4 Life":
             rand_powerball = system_random.randint(1, cash_pwrball)
@@ -100,17 +109,24 @@ class WindowWidget(QWidget):
         elif tickettype == "Powerball":
             rand_powerball = system_random.randint(1, power_pwrball)
             num_end = power_num
+        elif tickettype == "Numbers Eve (3)":
+            rand_powerball = system_random.randint(0, daily_game_num)
+            num_end = daily_game_num
+            num_of_positions = 3
+            num_start = 0
+            has_powerball = False
 
-        for _ in range(5):
-            rand_num = system_random.randint(1, num_end)
+        for _ in range(num_of_positions):
+            rand_num = system_random.randint(num_start, num_end)
 
             while rand_num in list_num:
-                rand_num = system_random.randint(1, num_end)
+                rand_num = system_random.randint(num_start, num_end)
 
             list_num.append(rand_num)
 
         list_num.sort()
-        list_num.append(rand_powerball)
+        if has_powerball == True:
+            list_num.append(rand_powerball)
 
         with open("previous_generated.txt", "a") as file:
             str_list_num = ""
@@ -125,6 +141,8 @@ class WindowWidget(QWidget):
             file.write(str_list_num + "\n")
 
         d2 = QLabel(str_list_num)
+        # self.dialog_layout.removeWidget(d2)
+
         self.dialog_layout.addWidget(d2)
         return
 
