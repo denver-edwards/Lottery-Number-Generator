@@ -13,9 +13,9 @@ class WindowWidget(QWidget):
     def __init__(self):
         super().__init__()
 
-        outerlayout = QVBoxLayout(self)
+        outer_layout = QVBoxLayout(self)
         layout = QHBoxLayout(self)
-        buttonlayout = QHBoxLayout(self)
+        button_layout = QHBoxLayout(self)
         layout3 = QHBoxLayout(self)
 
         self.lotteryNum_label = QLabel("How many tickets do you want?")
@@ -26,42 +26,42 @@ class WindowWidget(QWidget):
         layout.addWidget(self.lotteryNum_label)
         layout.addWidget(self.sp)
 
-        radiob = [QRadioButton("Cash 4 Life"), QRadioButton("Mega Millions"),
-                  QRadioButton("Powerball"), QRadioButton("Numbers Eve (3)")]
-        radiob[0].setChecked(True)
+        radio_button = [QRadioButton("Cash 4 Life"), QRadioButton("Mega Millions"),
+                        QRadioButton("Powerball"), QRadioButton("Numbers Eve (3)")]
+        radio_button[0].setChecked(True)
 
         self.button_group = QButtonGroup()
-        for i in range(len(radiob)):
-            buttonlayout.addWidget(radiob[i])
-            self.button_group.addButton(radiob[i], i)
 
-        self.submitbutton = QPushButton("Generate", self)
-        self.submitbutton.clicked.connect(self.startpicking)
-        layout3.addWidget(self.submitbutton)
+        for i in range(len(radio_button)):
+            button_layout.addWidget(radio_button[i])
+            self.button_group.addButton(radio_button[i], i)
 
-        outerlayout.addLayout(layout)
-        outerlayout.addLayout(buttonlayout)
-        outerlayout.addLayout(layout3)
+        self.submit_button = QPushButton("Generate", self)
+        self.submit_button.clicked.connect(self.start_picking)
+        layout3.addWidget(self.submit_button)
+
+        outer_layout.addLayout(layout)
+        outer_layout.addLayout(button_layout)
+        outer_layout.addLayout(layout3)
 
         self.dialog = QDialog()
         self.dialog_layout = QVBoxLayout(self.dialog)
 
-        self.setLayout(outerlayout)
-        self.initUI()
+        self.setLayout(outer_layout)
+        self.init_ui()
 
-    def initUI(self):
+    def init_ui(self):
         self.resize(400, 350)
         self.setWindowTitle("Lottery Number Generator")
 
-    def showModal(self):
+    def show_modal(self):
         self.dialog.setWindowTitle(f"{self.button_group.checkedButton().text()} - Ticket Number ({self.sp.value()})")
         self.dialog.setWindowModality(Qt.WindowModality.ApplicationModal)
         self.dialog.resize(300, 300)
-
         self.dialog.setLayout(self.dialog_layout)
         self.dialog.exec()
 
-    def startpicking(self):
+    def start_picking(self):
         prompt_user_num_ticket = self.sp.value()
         prompt_user_ticket_type = self.button_group.checkedButton().text()
 
@@ -72,14 +72,19 @@ class WindowWidget(QWidget):
             file.write("\n" + date_n_time + " || " + prompt_user_ticket_type + "\n")
 
         for _ in range(prompt_user_num_ticket):
-            self.makenum(prompt_user_ticket_type)
+            self.make_num(prompt_user_ticket_type)
 
-        self.showModal()
+        self.show_modal()
 
         with open("previous_generated.txt", "a") as file:
             file.write("\n")
 
-    def makenum(self, tickettype):
+        ticket_container = self.dialog_layout
+
+        for i in reversed(range(ticket_container.count())):
+            ticket_container.itemAt(i).widget().deleteLater()
+
+    def make_num(self, ticket_type):
         list_num = []
 
         num_of_positions = 5
@@ -89,27 +94,27 @@ class WindowWidget(QWidget):
 
         rand_powerball = 0
 
-        cash_pwrball = 4
+        cash_powerball = 4
         cash_num = 60
-        mm_pwrball = 25
+        mm_powerball = 25
         mm_num = 70
-        power_pwrball = 26
+        power_powerball = 26
         power_num = 69
 
         daily_game_num = 9
 
         has_powerball = True
 
-        if tickettype == "Cash 4 Life":
-            rand_powerball = system_random.randint(1, cash_pwrball)
+        if ticket_type == "Cash 4 Life":
+            rand_powerball = system_random.randint(1, cash_powerball)
             num_end = cash_num
-        elif tickettype == "Mega Millions":
-            rand_powerball = system_random.randint(1, mm_pwrball)
+        elif ticket_type == "Mega Millions":
+            rand_powerball = system_random.randint(1, mm_powerball)
             num_end = mm_num
-        elif tickettype == "Powerball":
-            rand_powerball = system_random.randint(1, power_pwrball)
+        elif ticket_type == "Powerball":
+            rand_powerball = system_random.randint(1, power_powerball)
             num_end = power_num
-        elif tickettype == "Numbers Eve (3)":
+        elif ticket_type == "Numbers Eve (3)":
             rand_powerball = system_random.randint(0, daily_game_num)
             num_end = daily_game_num
             num_of_positions = 3
@@ -123,9 +128,9 @@ class WindowWidget(QWidget):
                 rand_num = system_random.randint(num_start, num_end)
 
             list_num.append(rand_num)
-
         list_num.sort()
-        if has_powerball == True:
+
+        if has_powerball:
             list_num.append(rand_powerball)
 
         with open("previous_generated.txt", "a") as file:
